@@ -54,11 +54,9 @@ const Shelly1Garage = ({device, http, httpAction, tile, mqtt, updateTile, useHtt
 
         const door_state = device_state.isOpening ? 'Opening': 'Closing'
 
-        return <div className="center_container">
-            <div className="center_inner">
-                <div className="button_loader button_loader_l"></div>
-                <p>{door_state} Door...</p>
-            </div>
+        return <div className="txt_center"><br />
+            <div className="button_loader button_loader_l"></div>
+            <p>{door_state} Door...</p>
         </div>
     }
 
