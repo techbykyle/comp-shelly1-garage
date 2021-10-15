@@ -7,27 +7,25 @@ const Shelly1Garage = ({device, http, httpAction, tile, mqtt, updateTile, useHtt
     const dispatch = useDispatch()
     const mqtt_client = useMqtt()
     const user = useSelector(state => state.User)
+    const isOpen = device_state.isOpen || false
 
-    let isOpen, mqttSentOpen = false
-
-    if(device_state.inputs && device_state?.inputs[0]?.input === 0) {
-        isOpen = true
+    if(device_state.inputs && device_state?.inputs[0]?.input === 0 && device_state[mqtt['get_input_state']] === undefined) {
+        !isOpen && updateTile(dispatch, tile.id, {isOpen: true})
     }
 
-    if(device_state.inputs && device_state?.inputs[0]?.input === 1) {
-        isOpen = false
+    if(device_state.inputs && device_state?.inputs[0]?.input === 1 && device_state[mqtt['get_input_state']] === undefined) {
+        isOpen && updateTile(dispatch, tile.id, {isOpen: false})
     }
 
     if(device_state[mqtt['get_input_state']] === '0') {
-        isOpen = true
-        mqttSentOpen = true
+        !isOpen && device_state[mqtt['get_input_state']].isFromClick && updateTile(dispatch, tile.id, {isOpen: true, isFromClick: false})
+        !isOpen && !device_state[mqtt['get_input_state']].isFromClick && updateTile(dispatch, tile.id, {isOpen: true, isOpening: true, isFromClick: false})
     }
 
     if(device_state[mqtt['get_input_state']] === '1') {
-        isOpen = false
-        updateTile(dispatch, tile.id, {isClosing: false})
+        isOpen && updateTile(dispatch, tile.id, {isOpen: false, isClosing: false})
     }
-
+    
     const is_open_txt = isOpen ? 'Open': 'Closed'
     const style = isOpen ? { color: 'red' }: {}
 
@@ -35,19 +33,20 @@ const Shelly1Garage = ({device, http, httpAction, tile, mqtt, updateTile, useHtt
     useHttp(device.id, tile.id, http['get_update_state'])
 
     useMqttSub(mqtt_client, mqtt['get_input_state'], tile.id)
+    useMqttSub(mqtt_client, mqtt['get_longpush'], tile.id)
 
     useEffect(() => {
-        if(device_state.isOpening && mqttSentOpen) {
+        if(device_state.isOpening) {
             setTimeout(() => {
                 updateTile(dispatch, tile.id, {isOpening: false})
             }, 15000)
         }
-    }, [mqttSentOpen])
+    }, [device_state.isOpening])
 
     const handleClick = () => {
-        httpAction(dispatch, user.token, device.id, tile.id, http['on'])
         isOpen && updateTile(dispatch, tile.id, {isClosing: true})
-        !isOpen && updateTile(dispatch, tile.id, {isOpening: true})
+        !isOpen && updateTile(dispatch, tile.id, {isOpening: true, isFromClick: true})
+        httpAction(dispatch, user.token, device.id, tile.id, http['on'])
     }
 
     if(device_state.isOpening || device_state.isClosing) {
