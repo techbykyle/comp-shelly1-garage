@@ -9,11 +9,13 @@ const Shelly1Garage = ({device, http, httpAction, tile, mqtt, updateTile, useHtt
     const user = useSelector(state => state.User)
     const isOpen = device_state.isOpen || false
 
-    if(device_state.inputs && device_state?.inputs[0]?.input === 0 && device_state[mqtt['get_input_state']] === undefined) {
+    console.log('device_state', device_state)
+
+    if(device_state[http['get_state']]?.inputs && device_state[http['get_state']]?.inputs[0]?.input === 0 && device_state[mqtt['get_input_state']] === undefined) {
         !isOpen && updateTile(dispatch, tile.id, {isOpen: true})
     }
 
-    if(device_state.inputs && device_state?.inputs[0]?.input === 1 && device_state[mqtt['get_input_state']] === undefined) {
+    if(device_state[http['get_state']]?.inputs && device_state[http['get_state']]?.inputs[0]?.input === 1 && device_state[mqtt['get_input_state']] === undefined) {
         isOpen && updateTile(dispatch, tile.id, {isOpen: false})
     }
 

@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const { ModuleFederationPlugin } = require('webpack').container
+const pkg = require('./package.json')
+const exposes = require('./exposes.json')
 
 module.exports = {
     entry: './src/index.js',
@@ -25,16 +27,14 @@ module.exports = {
     },
     plugins: [
         new ModuleFederationPlugin({
-            name: 'Shelly1Garage',
+            name: pkg["federated-module-name"],
             filename: 'remoteEntry.js',
             shared: { 
                 react: { requiredVersion: "16.13.1", singleton: true, eager: true }, 
                 "react-dom": { requiredVersion: "16.13.1", singleton: true, eager: true }, 
                 "react-redux": { requiredVersion: "7.2.3", singleton: true, eager: true } 
             },
-            exposes: {
-                'Shelly1Garage': './src/components/Shelly1Garage',
-            }
+            exposes
         }),
         new HtmlWebpackPlugin({
             template: "./public/index.html",
