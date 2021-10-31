@@ -29,7 +29,7 @@ const Shelly1Garage = ({device, http, httpAction, tile, mqtt, updateTile, useHtt
     }
     
     const is_open_txt = isOpen ? 'Open': 'Closed'
-    const style = isOpen ? { color: 'red' }: {}
+    const style = isOpen ? { color: '#f59598' }: {}
 
     useHttp(device.id, tile.id, http['get_state'])
     useHttp(device.id, tile.id, http['get_update_state'])
